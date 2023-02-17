@@ -17,6 +17,7 @@ class HomeController with ChangeNotifier {
     isLoading = true;
     notifyListeners();
     final PermissionStatus permission = await Permission.contacts.status;
+    await Permission.storage.request();
     if (permission.isGranted) {
       return true;
     } else if (permission.isDenied) {
@@ -99,7 +100,7 @@ class HomeController with ChangeNotifier {
     try {
       final dir = await path_provider.getApplicationDocumentsDirectory();
       await OpenFilePlus.open("${dir.path}/contacts.pdf");
-      developer.log('Opening.... ${dir.path}/contacts.pdf}');
+      developer.log('Opening.... ${dir.path}/contacts.pdf');
       isLoading = false;
       notifyListeners();
     } catch (e) {
