@@ -28,7 +28,7 @@ class _HomeViewState extends State<HomeView> {
               child: TextButton(
                 onPressed: () async {
                   //TODO
-                  controller!.getContacts();
+                  controller!.generatePdf();
                 },
                 child: Text(
                   'Generate PDF of Contacts',
