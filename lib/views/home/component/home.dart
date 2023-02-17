@@ -1,7 +1,5 @@
 import 'package:contact_to_pdf/views/home/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as developer show log;
-
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -25,19 +23,20 @@ class _HomeViewState extends State<HomeView> {
           builder: (context, model, child) {
             controller = model;
             return Center(
-              child: TextButton(
-                onPressed: () async {
-                  //TODO
-                  controller!.generatePdf();
-                },
-                child: Text(
-                  'Generate PDF of Contacts',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
+              child: controller!.isLoading
+                  ? const CircularProgressIndicator()
+                  : TextButton(
+                      onPressed: () async {
+                        controller!.generatePdf();
+                      },
+                      child: Text(
+                        'Generate PDF of Contacts',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
             );
           },
         ),
