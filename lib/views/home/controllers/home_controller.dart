@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:open_file_safe_plus/open_file_safe_plus.dart';
+import 'package:pdf/pdf.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart' as path_provider;
@@ -63,16 +64,15 @@ class HomeController with ChangeNotifier {
     notifyListeners();
     pdf.addPage(
       pw.Page(
+        pageFormat: PdfPageFormat.a4,
         build: (pw.Context context) {
           return pw.Center(
-            child: pw.Text(
-              'Dart is awesome',
-              style: const pw.TextStyle(fontSize: 40),
-            ),
+            child: pw.Text("Hello World"),
           ); // Center
         },
       ),
     );
+
     notifyListeners();
     isLoading = false;
     notifyListeners();
@@ -126,6 +126,8 @@ class HomeController with ChangeNotifier {
     isLoading = true;
     notifyListeners();
     pdf = pw.Document();
+    await Future.delayed(const Duration(milliseconds: 600));
+
     await getContacts();
     await writeOnPdf();
     await savePdf();
