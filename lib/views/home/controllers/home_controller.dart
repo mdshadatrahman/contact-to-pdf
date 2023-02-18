@@ -16,13 +16,16 @@ class HomeController with ChangeNotifier {
   Future<bool> getPermission() async {
     isLoading = true;
     notifyListeners();
-    final PermissionStatus permission = await Permission.contacts.status;
-    await Permission.storage.request();
-    if (permission.isGranted) {
+    final PermissionStatus contactPermission = await Permission.contacts.status;
+    final PermissionStatus storagePermission = await Permission.storage.status;
+    final PermissionStatus manageExternalStoragePermission = await Permission.manageExternalStorage.status;
+    if (contactPermission.isGranted && storagePermission.isGranted && manageExternalStoragePermission.isGranted) {
       return true;
-    } else if (permission.isDenied) {
-      final PermissionStatus permissionStatus = await Permission.contacts.request();
-      if (permissionStatus.isGranted) {
+    } else if (contactPermission.isDenied && storagePermission.isDenied && manageExternalStoragePermission.isDenied) {
+      final PermissionStatus contactPermission = await Permission.contacts.request();
+      final PermissionStatus storagePermission = await Permission.storage.request();
+      final PermissionStatus manageExternalStoragePermission = await Permission.manageExternalStorage.request();
+      if (contactPermission.isGranted && storagePermission.isGranted && manageExternalStoragePermission.isGranted) {
         isLoading = false;
         notifyListeners();
         return true;
@@ -31,7 +34,9 @@ class HomeController with ChangeNotifier {
         notifyListeners();
         return false;
       }
-    } else if (permission.isPermanentlyDenied) {
+    } else if (contactPermission.isPermanentlyDenied &&
+        storagePermission.isPermanentlyDenied &&
+        manageExternalStoragePermission.isPermanentlyDenied) {
       isLoading = false;
       notifyListeners();
       openAppSettings();
@@ -68,6 +73,7 @@ class HomeController with ChangeNotifier {
         },
       ),
     );
+    notifyListeners();
     isLoading = false;
     notifyListeners();
   }
@@ -80,10 +86,12 @@ class HomeController with ChangeNotifier {
 
     try {
       final permission = await getPermission();
+
       if (permission) {
         final dir = await path_provider.getApplicationDocumentsDirectory();
         final file = File('${dir.path}/contacts.pdf');
         await file.writeAsBytes(await pdf.save()).then((value) {
+          developer.log(value.path);
           openPdf();
         });
       }
@@ -99,8 +107,10 @@ class HomeController with ChangeNotifier {
     notifyListeners();
     try {
       final dir = await path_provider.getApplicationDocumentsDirectory();
-      await OpenFilePlus.open("${dir.path}/contacts.pdf");
-      developer.log('Opening.... ${dir.path}/contacts.pdf');
+      await OpenFilePlus.open("${dir.path}/contacts.pdf").then((value) {
+        developer.log(value.message);
+        developer.log(value.type.toString());
+      });
       isLoading = false;
       notifyListeners();
     } catch (e) {
